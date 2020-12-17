@@ -22,8 +22,8 @@
           <el-button type="danger" icon="el-icon-top" round>返回</el-button>
         </div>
         <div class="container__setting">
-          <el-link type="info"
-            ><i class="el-icon-s-tools"></i> 测试选项</el-link
+          <el-link type="info" @click="handleClickPreference"
+            ><i class="el-icon-s-operation"></i> 测试选项</el-link
           >
         </div>
       </div>
@@ -34,6 +34,11 @@
 <script>
 export default {
   name: "ControlPannel",
+  methods: {
+    handleClickPreference() {
+      this.$ipc.send("openPreference");
+    },
+  },
 };
 </script>
 

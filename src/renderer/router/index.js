@@ -1,16 +1,22 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-
 import HomePage from '@/views/HomePage'
+import PreferencePage from '@/views/PreferencePage'
 
-Vue.use(Router)
 
 export default new Router({
   routes: [
     {
       path: '/',
       name: 'HomePage',
-      component: HomePage
+      component: HomePage,
+      meta: {title: 'BART - Balloon Analogue Risk Task'}
+    },
+    {
+      path: '/preferencepage',
+      name: 'PreferencePage',
+      component: PreferencePage,
+      meta: {title: 'BART - Preference'}
     },
     {
       path: '*',
@@ -18,3 +24,5 @@ export default new Router({
     }
   ]
 })
+
+Vue.use(Router)

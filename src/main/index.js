@@ -1,4 +1,5 @@
-import { app, BrowserWindow} from 'electron'
+import { create } from 'domain'
+import { app, BrowserWindow, crashReporter, ipcMain} from 'electron'
 
 /**
  * Set `__static` path to static files in production
@@ -11,10 +12,15 @@ if (process.env.NODE_ENV !== 'development') {
 // webFrame.setZoomLevelLimits(1, 1);
 
 
-let mainWindow
+let mainWindow = null;
+let preferenceWindow = null;
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
+
+const preferenceURL = process.env.NODE_ENV === 'development'
+? `http://localhost:9080/#/preferencepage`
+: `file://${__dirname}/index.html#preferencepage`
 
 
 function createWindow () {
@@ -22,10 +28,11 @@ function createWindow () {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
+    title: "BART",
     height: 563,
-    width: 1000,
+    width: 1000,  
     useContentSize: true,
-    resizable: false
+    resizable: false,
   })
 
 
@@ -33,6 +40,23 @@ function createWindow () {
 
   mainWindow.on('closed', () => {
     mainWindow = null
+  })
+}
+
+function createPreferenceWindow(){
+  preferenceWindow = new BrowserWindow({
+    height: 450,
+    width: 600,
+    useContentSize: true,
+    resizable: false,
+    parent: mainWindow,
+    modal: true, 
+  })
+
+  preferenceWindow.loadURL(preferenceURL)
+
+  preferenceWindow.on('closed', ()=>{
+    preferenceWindow = null
   })
 }
 
@@ -49,6 +73,19 @@ app.on('activate', () => {
     createWindow()
   }
 })
+
+ipcMain.on('openPreference',(event, args) => {
+  if (preferenceWindow === null){
+    createPreferenceWindow();
+  }
+})
+
+ipcMain.on('closePreference',(event, args) => {
+  if (preferenceWindow !== null){
+    preferenceWindow.close();
+  }
+})
+
 
 /**
  * Auto Updater
