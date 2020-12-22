@@ -1,10 +1,23 @@
 <template>
   <div class="home">
     <div class="home__main">
-      <game-window></game-window>
+      <game-window
+        v-if="hasSetting"
+        :start="start"
+        :exp-name="expName"
+        :exp-introduction="expIntroduction"
+        :exp-setting-list="expSettingList"
+        @gameStart="handleGameStart"
+      ></game-window>
     </div>
     <div class="home__side">
-      <control-pannel></control-pannel>
+      <control-pannel
+        :has-setting="hasSetting"
+        :start="start"
+        :exp-name="expName"
+        :exp-introduction="expIntroduction"
+        :exp-setting-list="expSettingList"
+      ></control-pannel>
     </div>
   </div>
 </template>
@@ -12,9 +25,30 @@
 <script>
 import GameWindow from "@/components/GameWindow";
 import ControlPannel from "@/components/ControlPannel";
+import { mapState } from "vuex";
 
 export default {
   name: "HomePage",
+  data() {
+    return {
+      start: false,
+    };
+  },
+  computed: {
+    ...mapState({
+      expName: (state) => state.preference.expName,
+      expIntroduction: (state) => state.preference.expIntroduction,
+      expSettingList: (state) => state.preference.expSettingList,
+    }),
+    hasSetting() {
+      return this.expSettingList.length > 0;
+    },
+  },
+  methods: {
+    handleGameStart() {
+      this.start = true;
+    },
+  },
   components: {
     "game-window": GameWindow,
     "control-pannel": ControlPannel,
