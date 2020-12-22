@@ -18,6 +18,15 @@
             ></el-step>
           </el-steps>
         </div>
+        <div v-if="currentExp > 0" class="container__restore">
+          <el-button
+            icon="el-icon-refresh-left"
+            type="danger"
+            @click="handleClickRestartAll"
+            round
+            >重新开始整个实验</el-button
+          >
+        </div>
         <div class="container__setting">
           <el-link type="info" @click="handleClickPreference"
             ><i class="el-icon-s-operation"></i> 测试选项</el-link
@@ -66,6 +75,26 @@ export default {
   methods: {
     handleClickPreference() {
       this.$ipc.send("openPreference");
+    },
+    handleClickRestartAll() {
+      this.$confirm("重新开始所有实验步骤，记录将会被删除", "重新开始", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          this.$emit("restartAll");
+          this.$message({
+            type: "success",
+            message: "重新开始！",
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "继续实验",
+          });
+        });
     },
   },
 };

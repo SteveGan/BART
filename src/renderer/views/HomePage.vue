@@ -20,6 +20,7 @@
         :exp-introduction="expIntroduction"
         :exp-setting-list="expSettingList"
         :current-exp="currentExp"
+        @restartAll="handleRestartAll"
       ></control-pannel>
     </div>
   </div>
@@ -54,6 +55,10 @@ export default {
     },
     handleNextExp() {
       this.currentExp++;
+    },
+    handleRestartAll() {
+      this.currentExp = 0;
+      this.start = false;
     },
   },
   components: {

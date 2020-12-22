@@ -22,7 +22,7 @@
           </div>
           <div class="game__start__top__score__restart">
             <el-link type="info" class="link" @click="handleRestart"
-              >重新开始 <i class="el-icon-refresh-left"></i
+              >重开本局 <i class="el-icon-refresh-left"></i
             ></el-link>
           </div>
         </div>
@@ -155,6 +155,10 @@ export default {
       this.balloons = this.createBalloons(
         this.expSettingList[this.currentExp].balloons
       );
+      if (val === 0) {
+        this.restartAll();
+      }
+      this.addRecordsSavePoint();
     },
   },
   methods: {
@@ -295,6 +299,12 @@ export default {
       this.blow = 0;
       this.showExplode = false;
       this.showNextBalloon = false;
+    },
+
+    restartAll() {
+      this.resetStatus();
+      this.records = [];
+      this.recordsSavePoint = [];
     },
 
     createRecord(scorePerBlow, maxBlow, blow, unit) {
