@@ -7,6 +7,7 @@
         :exp-name="expName"
         :exp-introduction="expIntroduction"
         :exp-setting-list="expSettingList"
+        :current-exp="currentExp"
         @gameStart="handleGameStart"
       ></game-window>
     </div>
@@ -17,6 +18,7 @@
         :exp-name="expName"
         :exp-introduction="expIntroduction"
         :exp-setting-list="expSettingList"
+        :current-exp="currentExp"
       ></control-pannel>
     </div>
   </div>
@@ -32,6 +34,7 @@ export default {
   data() {
     return {
       start: false,
+      currentExp: 0,
     };
   },
   computed: {

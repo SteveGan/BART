@@ -5,20 +5,20 @@ const state = {
     {
       title: '假的奖励',
       description: '奖励是假的，大家',
-      scorePerBlow: 400,
+      scorePerBlow: 200,
       unit: '分',
       balloons: [
-        {maxBlow: 5, count: 20},
-        {maxBlow: 3, count: 5}
+        {maxBlow: 2, count: 5},
+        {maxBlow: 4, count: 4}
       ]
     },
     {
       title: '真的奖励',
       description: 'will get real prize',
-      scorePerBlow: 300,
+      scorePerBlow: 400,
       unit: '¥',
       balloons: [
-        {maxBlow: 7, count: 20},
+        {maxBlow: 4, count: 20},
         {maxBlow: 3, count: 5}
       ]
     },
