@@ -9,6 +9,7 @@
         :exp-setting-list="expSettingList"
         :current-exp="currentExp"
         @gameStart="handleGameStart"
+        @nextExp="handleNextExp"
       ></game-window>
     </div>
     <div class="home__side">
@@ -50,6 +51,9 @@ export default {
   methods: {
     handleGameStart() {
       this.start = true;
+    },
+    handleNextExp() {
+      this.currentExp++;
     },
   },
   components: {

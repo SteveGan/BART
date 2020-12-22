@@ -3,8 +3,13 @@
     <el-card v-if="hasSetting" shadow="hover">
       <div class="container">
         <div class="container__title">{{ expName }}</div>
-        <div style="height: 200px;">
-          <el-steps direction="vertical" :active="0">
+        <div class="container__steps">
+          <el-steps
+            direction="vertical"
+            :space="200"
+            :active="currentExp"
+            style="display: block;"
+          >
             <el-step
               v-for="(exp, index) in expSettingList"
               :key="index"
@@ -12,18 +17,6 @@
               :description="exp.description"
             ></el-step>
           </el-steps>
-        </div>
-        <div class="container__controller">
-          <el-button
-            type="success"
-            icon="el-icon-bottom"
-            :disabled="!start"
-            round
-            >进入下一步
-          </el-button>
-          <el-button type="danger" icon="el-icon-top" :disabled="!start" round
-            >返回</el-button
-          >
         </div>
         <div class="container__setting">
           <el-link type="info" @click="handleClickPreference"
@@ -64,6 +57,10 @@ export default {
       type: Array,
       required: true,
     },
+    currentExp: {
+      type: Number,
+      required: true,
+    },
   },
   created() {},
   methods: {
@@ -87,6 +84,12 @@ export default {
 .container {
   height: 90vh;
   width: 25vw;
+  &__steps {
+    display: flex;
+    flex-direction: column;
+    overflow: scroll;
+    height: 400px;
+  }
   &__title {
     width: 100%;
     display: flex;
@@ -102,7 +105,7 @@ export default {
   }
   &__setting {
     width: 100%;
-    margin-top: 200px;
+    margin-top: 20px;
     display: flex;
     justify-content: center;
   }
@@ -110,5 +113,10 @@ export default {
 
 .no-setting {
   font-size: 40px;
+}
+
+/deep/ .el-step__main {
+  padding-left: 10px;
+  margin-bottom: 20px;
 }
 </style>

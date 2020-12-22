@@ -35,7 +35,7 @@
           :style="`transform:scale(${balloonScale})`"
         />
         <div
-          v-if="expStart && !showExplode"
+          v-if="expStart && !showExplode && score"
           :style="`transform:scale(${balloonScale})`"
         >
           {{ score }}{{ unit }}
@@ -46,7 +46,7 @@
           >开始游戏</el-button
         >
       </div>
-      <div v-if="expStart && !showNext" class="game__start__controller">
+      <div v-if="expStart && !showNextBalloon" class="game__start__controller">
         <el-button @click="handleBlow" round
           >吹气球 + {{ scorePerBlow }}{{ unit }}</el-button
         >
@@ -54,13 +54,24 @@
           >OK</el-button
         >
       </div>
-      <div v-if="expStart && showNext" class="game__start__controller">
+      <div
+        v-if="expStart && showNextBalloon && !outOfBalloon"
+        class="game__start__controller"
+      >
         <el-button
           @click="handleClickNext"
           icon="el-icon-right"
           type="success"
           round
           >去吹下个气球</el-button
+        >
+      </div>
+      <div
+        v-if="expStart && showNextBalloon && outOfBalloon"
+        class="game__start__controller"
+      >
+        <el-button @click="handleClickNextExp" icon="el-icon-right" round
+          >本局气球已结束，进入下一场</el-button
         >
       </div>
     </div>
@@ -70,7 +81,7 @@
 <script>
 import { shuffleArray } from "../utils/ArrayUtil";
 
-const BALLOON_MAX_SCALE = 3;
+const BALLOON_SCALE_INCREASE = 0.1; //TODO: currently maximum blow will need to be limited to approx 30
 
 export default {
   name: "GameWindow",
@@ -98,7 +109,6 @@ export default {
   },
   data() {
     return {
-      expStart: false,
       records: [],
       //record after indexes denoted by each save points will be discarded in one reset
       recordsSavePoint: [],
@@ -107,8 +117,9 @@ export default {
       totalScore: 0,
       score: 0,
       blow: 0,
+      expStart: false,
       showExplode: false,
-      showNext: false,
+      showNextBalloon: false,
     };
   },
   computed: {
@@ -127,13 +138,23 @@ export default {
         : require("../assets/red-balloon.png");
     },
     balloonScale() {
-      return 1 + (this.blow / this.maxBlow) * (BALLOON_MAX_SCALE - 1);
+      return 1 + BALLOON_SCALE_INCREASE * this.blow;
     },
     balloonLeft() {
       return this.balloons.length - this.currentBalloon - 1;
     },
     outOfBalloon() {
-      return this.balloonLeft > 0;
+      return this.balloonLeft <= 0;
+    },
+    outOfExps() {
+      return this.currentExp > this.expSettingList.length - 1;
+    },
+  },
+  watch: {
+    currentExp: function(val) {
+      this.balloons = this.createBalloons(
+        this.expSettingList[this.currentExp].balloons
+      );
     },
   },
   methods: {
@@ -151,8 +172,13 @@ export default {
       this.score = 0;
       this.blow = 0;
       this.showExplode = false;
-      this.showNext = false;
+      this.showNextBalloon = false;
       this.expStart = true;
+    },
+    handleClickNextExp() {
+      if (this.currentExp >= this.expSettingList.length) return;
+      this.resetStatus();
+      this.$emit("nextExp");
     },
     handleBlow() {
       if (++this.blow >= this.maxBlow) {
@@ -171,7 +197,7 @@ export default {
         });
         return;
       }
-      this.showNext = true;
+      this.showNextBalloon = true;
       this.record();
     },
     handleRestart() {
@@ -218,7 +244,7 @@ export default {
 
     balloonExplode() {
       this.showExplode = true;
-      this.showNext = true;
+      this.showNextBalloon = true;
       this.record();
     },
 
@@ -268,7 +294,7 @@ export default {
       this.currentBalloon = 0;
       this.blow = 0;
       this.showExplode = false;
-      this.showNext = false;
+      this.showNextBalloon = false;
     },
 
     createRecord(scorePerBlow, maxBlow, blow, unit) {

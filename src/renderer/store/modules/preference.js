@@ -8,20 +8,30 @@ const state = {
       scorePerBlow: 200,
       unit: '分',
       balloons: [
-        {maxBlow: 2, count: 5},
-        {maxBlow: 4, count: 4}
+        {maxBlow: 2, count: 2},
+        {maxBlow: 4, count: 1}
       ]
     },
     {
       title: '真的奖励',
-      description: 'will get real prize',
+      description: 'will get real prize will get real prizewill get real prizewill get real prizewill get real prizewill get real prizewill get real prizewill get real prizewill get real prize',
       scorePerBlow: 400,
       unit: '¥',
       balloons: [
-        {maxBlow: 4, count: 20},
-        {maxBlow: 3, count: 5}
+        {maxBlow: 4, count: 3},
+        {maxBlow: 3, count: 2}
       ]
     },
+    {
+      title: '真的奖励',
+      description: 'will get real prize will get real prizewill get real prizewill get real prizewill get real prizewill get real prizewill get real prizewill get real prizewill get real prize',
+      scorePerBlow: 400,
+      unit: '¥',
+      balloons: [
+        {maxBlow: 4, count: 4},
+        {maxBlow: 3, count: 1}
+      ]
+    }
   ],
 }
 
