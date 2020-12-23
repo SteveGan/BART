@@ -3,13 +3,15 @@ const state = {
   expIntroduction: '本次实验需要做的准备本次实验需要做的准备本次实验需要做的准备本次实验需要做的准备本次实验需要做的准备本次实验需要做的准备本次实验需要做的准备',
   expSettingList: [
     {
-      title: '假的奖励',
-      description: '奖励是假的，大家',
+      title: '虚拟奖励奖励',
+      description: '点击气球获取虚拟积分，请尽量在最短的时间里以最大分数完成实验',
       scorePerBlow: 200,
       unit: '分',
       balloons: [
-        {maxBlow: 2, count: 2},
-        {maxBlow: 4, count: 1}
+        {maxBlow: 7, count: 2},
+        {maxBlow: 4, count: 1},
+        {maxBlow: 8, count: 3},
+        {maxBlow: 9, count: 2},
       ]
     },
     {
@@ -18,7 +20,7 @@ const state = {
       scorePerBlow: 400,
       unit: '¥',
       balloons: [
-        {maxBlow: 4, count: 3},
+        {maxBlow: 4, count: 1},
         {maxBlow: 3, count: 2}
       ]
     },

@@ -47,7 +47,7 @@
         >
       </div>
       <div v-if="expStart && !showNextBalloon" class="game__start__controller">
-        <el-button @click="handleBlow" round
+        <el-button @click="handleClickBlow" round
           >吹气球 + {{ scorePerBlow }}{{ unit }}</el-button
         >
         <el-button @click="handleClickOk" icon="el-icon-check" round
@@ -67,11 +67,25 @@
         >
       </div>
       <div
-        v-if="expStart && showNextBalloon && outOfBalloon"
+        v-if="expStart && showNextBalloon && outOfBalloon && !outOfExps"
         class="game__start__controller"
       >
         <el-button @click="handleClickNextExp" icon="el-icon-right" round
           >本局气球已结束，进入下一场</el-button
+        >
+      </div>
+      <div
+        v-if="expStart && showNextBalloon && outOfBalloon && outOfExps"
+        class="game__start__controller"
+        type="success"
+      >
+        <el-button
+          @click="handleClickExport"
+          type="success"
+          icon="el-icon-download"
+          round
+          :disabled="disableExport"
+          >实验结束，点击按钮下载数据</el-button
         >
       </div>
     </div>
@@ -81,6 +95,8 @@
 <script>
 import { shuffleArray } from "../utils/ArrayUtil";
 
+const fs = require("graceful-fs");
+const { dialog } = require("electron").remote;
 const BALLOON_SCALE_INCREASE = 0.1; //TODO: currently maximum blow will need to be limited to approx 30
 
 export default {
@@ -120,6 +136,7 @@ export default {
       expStart: false,
       showExplode: false,
       showNextBalloon: false,
+      disableExport: false,
     };
   },
   computed: {
@@ -147,7 +164,7 @@ export default {
       return this.balloonLeft <= 0;
     },
     outOfExps() {
-      return this.currentExp > this.expSettingList.length - 1;
+      return this.currentExp >= this.expSettingList.length - 1;
     },
   },
   watch: {
@@ -184,7 +201,40 @@ export default {
       this.resetStatus();
       this.$emit("nextExp");
     },
-    handleBlow() {
+    handleClickExport() {
+      this.disableExport = true;
+      const csvData = this.jsonToCsv(this.records);
+      dialog.showSaveDialog(
+        {
+          filters: [
+            {
+              name: "CSV files",
+              extensions: ["csv"],
+            },
+          ],
+        },
+        (fileName) => {
+          this.disableExport = false;
+          if (fileName === undefined) {
+            this.$message({
+              message: "警告：数据未保存。",
+              type: "warning",
+            });
+            return;
+          }
+          fs.writeFile(fileName, csvData, (err) => {
+            if (err) {
+              this.$message.error("数据存储发生异常，请重新尝试。");
+            }
+            this.$message({
+              message: "数据保存成功。",
+              type: "success",
+            });
+          });
+        }
+      );
+    },
+    handleClickBlow() {
       if (++this.blow >= this.maxBlow) {
         this.resetRoundScore();
         this.balloonExplode();
@@ -330,6 +380,24 @@ export default {
         balloons = balloons.concat(Array(count).fill(maxBlow));
       }
       return shuffleArray(balloons);
+    },
+
+    jsonToCsv(data) {
+      const items = data;
+      const replacer = (key, value) => (value === null ? "" : value); // specify how you want to handle null values here
+      const header = Object.keys(items[0]);
+      const csv = [
+        header.join(","), // header row first
+        ...items.map((row) =>
+          header
+            .map((fieldName) =>
+              JSON.stringify(row[fieldName], "utf-8", replacer)
+            )
+            .join(",")
+        ),
+      ].join("\r\n");
+
+      return csv;
     },
   },
   created() {},
