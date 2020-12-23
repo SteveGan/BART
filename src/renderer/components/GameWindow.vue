@@ -88,6 +88,7 @@
           >实验结束，点击按钮下载数据</el-button
         >
       </div>
+      <div v-if="blow" class="prompt">{{ blow }}/128</div>
     </div>
   </div>
 </template>
@@ -97,7 +98,7 @@ import { shuffleArray } from "../utils/ArrayUtil";
 
 const fs = require("graceful-fs");
 const { dialog } = require("electron").remote;
-const BALLOON_SCALE_INCREASE = 0.1; //TODO: currently maximum blow will need to be limited to approx 30
+const BALLOON_SCALE_INCREASE = 0.022; //TODO: currently maximum blow will need to be limited to approx 30
 
 export default {
   name: "GameWindow",
@@ -144,10 +145,11 @@ export default {
       return this.expSettingList[this.currentExp].unit;
     },
     scorePerBlow() {
-      return this.expSettingList[this.currentExp].scorePerBlow;
+      // return this.expSettingList[this.currentExp].scorePerBlow;
+      return this.balloons[this.currentBalloon].scorePerBlow;
     },
     maxBlow() {
-      return this.balloons[this.currentBalloon];
+      return this.balloons[this.currentBalloon].maxBlow;
     },
     balloonPic() {
       return this.showExplode
@@ -236,11 +238,11 @@ export default {
     },
     handleClickBlow() {
       if (++this.blow >= this.maxBlow) {
-        this.resetRoundScore();
         this.balloonExplode();
+        this.resetRoundScore();
         return;
       }
-      this.updateScore();
+      this.updateRoundScore();
     },
 
     handleClickOk() {
@@ -251,9 +253,11 @@ export default {
         });
         return;
       }
+      this.updateScore();
       this.showNextBalloon = true;
       this.record();
     },
+
     handleRestart() {
       this.$confirm("重新开始本步骤的实验，记录将会被删除", "重新开始", {
         confirmButtonText: "确定",
@@ -302,16 +306,16 @@ export default {
       this.record();
     },
 
-    updateScore() {
+    updateRoundScore() {
       this.score = this.score + this.scorePerBlow;
-      this.totalScore = this.totalScore + this.scorePerBlow;
     },
 
     resetRoundScore() {
-      const totalScore =
-        this.totalScore - this.scorePerBlow * (this.maxBlow - 1);
       this.score = 0;
-      this.totalScore = totalScore >= 0 ? totalScore : 0;
+    },
+
+    updateScore() {
+      this.totalScore = this.totalScore + this.score;
     },
 
     record() {
@@ -357,6 +361,33 @@ export default {
       this.recordsSavePoint = [];
     },
 
+    buttonPressed(key) {
+      console.log("key :>> ", key);
+      // left and right arrow
+      if (key === 39 || key === 37) {
+        if (this.expStart && !this.showNextBalloon) this.handleClickBlow();
+      }
+      if (key === 32) {
+        if (this.expStart && !this.showNextBalloon) {
+          this.handleClickOk();
+          return;
+        }
+        if (this.expStart && this.showNextBalloon && !this.outOfBalloon) {
+          this.handleClickNext();
+          return;
+        }
+        if (
+          this.expStart &&
+          this.showNextBalloon &&
+          this.outOfBalloon &&
+          !this.outOfExps
+        ) {
+          this.handleClickNextExp();
+          return;
+        }
+      }
+    },
+
     createRecord(scorePerBlow, maxBlow, blow, unit) {
       const now = new Date();
       const time = `${now.getFullYear()}-${now.getMonth() +
@@ -377,7 +408,10 @@ export default {
       for (let i = 0; i < balloonSetting.length; i++) {
         const count = balloonSetting[i].count;
         const maxBlow = balloonSetting[i].maxBlow;
-        balloons = balloons.concat(Array(count).fill(maxBlow));
+        const scorePerBlow = balloonSetting[i].scorePerBlow;
+        balloons = balloons.concat(
+          Array(count).fill({ maxBlow, scorePerBlow })
+        );
       }
       return shuffleArray(balloons);
     },
@@ -400,7 +434,11 @@ export default {
       return csv;
     },
   },
-  created() {},
+  created() {
+    window.addEventListener("keydown", (e) => {
+      this.buttonPressed(e.keyCode);
+    });
+  },
 };
 </script>
 
@@ -472,6 +510,11 @@ export default {
     &__controller {
       font-weight: bold;
     }
+  }
+
+  .prompt {
+    margin-top: 10px;
+    color: dimgrey;
   }
 }
 </style>
